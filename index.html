@@ -3,241 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Braille Teacher</title>
+    <title>Music Braille Teacher - Pro Edition</title>
     <style>
         :root { --primary: #2c3e50; --success: #27ae60; --error: #e74c3c; --accent: #e67e22; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: #333; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: #333; overflow-x: hidden; }
         
-        /* Schermata di Benvenuto */
+        /* Benvenuto */
         #welcome-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+            background: linear-gradient(135deg, #1a2a3a 0%, #000 100%);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: white; z-index: 1000; transition: opacity 1s ease;
+            color: white; z-index: 1000; transition: opacity 0.8s ease;
         }
-        .welcome-content { text-align: center; animation: fadeIn 2s ease; }
-        .welcome-content h1 { font-size: 4rem; margin-bottom: 10px; letter-spacing: 3px; }
-        .piano-img { width: 300px; border-radius: 20px; box-shadow: 0 0 30px rgba(255,255,255,0.2); margin: 20px; }
+        .welcome-content { text-align: center; padding: 20px; }
+        .welcome-content h1 { font-size: clamp(2.5rem, 8vw, 4.5rem); margin: 0; letter-spacing: 2px; }
+        .welcome-content p { font-size: 1.2rem; opacity: 0.8; margin: 15px 0 30px; }
         
-        /* Layout Principale */
+        /* Layout */
         .container { max-width: 1100px; margin: auto; padding: 20px; display: none; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
-        .tab-btn { padding: 12px 25px; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; background: #ddd; transition: 0.3s; }
-        .tab-btn.active { background: var(--accent); color: white; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3); }
+        .tabs { display: flex; gap: 8px; margin-bottom: 25px; justify-content: center; flex-wrap: wrap; }
+        .tab-btn { padding: 12px 22px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; background: #e0e0e0; transition: 0.3s; }
+        .tab-btn.active { background: var(--accent); color: white; box-shadow: 0 4px 12px rgba(230,126,34,0.3); }
 
-        .content-panel { display: none; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .content-panel.active { display: block; animation: slideUp 0.5s ease; }
+        .content-panel { display: none; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .content-panel.active { display: block; animation: fadeIn 0.5s ease-out; }
 
-        /* Componenti Musicali */
-        .staff-container { background: #fff; border: 2px solid #eee; border-radius: 15px; padding: 20px; margin: 20px 0; text-align: center; }
-        canvas { max-width: 100%; height: auto; }
-        
-        .braille-grid { display: grid; grid-template-columns: repeat(2, 70px); gap: 20px; justify-content: center; margin: 25px 0; }
+        /* Musica & Braille */
+        .staff-container { background: white; border: 2px solid #eee; border-radius: 15px; padding: 20px; margin: 20px 0; }
+        .braille-grid { display: grid; grid-template-columns: repeat(2, 75px); gap: 20px; justify-content: center; margin: 25px 0; }
         .dot { 
-            width: 70px; height: 70px; border-radius: 50%; border: 3px solid #eee; 
+            width: 75px; height: 75px; border-radius: 50%; border: 3px solid #eee; 
             display: flex; align-items: center; justify-content: center; 
-            font-size: 1.2rem; font-weight: bold; color: #ccc; background: #fff; position: relative;
+            font-size: 1.3rem; font-weight: bold; color: #ddd; background: #fff; position: relative;
         }
-        .dot.active { background: var(--primary); border-color: var(--primary); color: white; transform: scale(1.1); transition: 0.1s; }
+        .dot.active { background: var(--primary); border-color: var(--primary); color: white; transform: scale(1.05); }
         .dot::after { content: attr(data-label); opacity: 0.4; }
+        
+        .char-preview { font-size: 5rem; color: var(--accent); text-align: center; min-height: 120px; }
+        
+        /* Risorse Card */
+        .resource-card {
+            border: 1px solid #eee; padding: 25px; border-radius: 15px; text-align: center;
+            background: #fdfdfd; transition: transform 0.2s;
+        }
+        .resource-card:hover { transform: translateY(-5px); }
+        .btn-download { 
+            display: inline-block; padding: 12px 25px; background: var(--success); 
+            color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 15px;
+        }
 
-        .current-display { font-size: 4rem; color: var(--accent); min-height: 100px; margin: 10px 0; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body onclick="startApp()">
+<body onclick="initAudio()">
 
     <div id="welcome-screen">
         <div class="welcome-content">
             <h1>Music Braille Teacher</h1>
-            <p>L'armonia dei punti, la magia del suono.</p>
-            
-            <br>
-            <button class="tab-btn active" style="margin-top:20px; padding: 15px 40px; font-size: 1.2rem;">INIZIA LEZIONE</button>
+            <p>Senti la musica attraverso i tuoi polpastrelli.</p>
+            <div style="font-size: 5rem; margin: 20px;">🎹</div>
+            <button class="tab-btn active" style="font-size: 1.2rem; padding: 15px 40px;" onclick="startApp()">ENTRA NELL'AULA</button>
         </div>
     </div>
 
     <div class="container" id="main-app">
         <nav class="tabs">
-            <button class="tab-btn active" onclick="openTab('compositore')">🎼 COMPOSITORE</button>
+            <button class="tab-btn active" onclick="openTab('comp')">🎼 COMPOSITORE</button>
             <button class="tab-btn" onclick="openTab('quiz')">✍️ QUIZ STUDENTE</button>
             <button class="tab-btn" onclick="openTab('docente')">📚 PRONTUARIO</button>
+            <button class="tab-btn" onclick="openTab('risorse')">📖 RISORSE PDF</button>
         </nav>
 
-        <section id="compositore" class="content-panel active">
-            <div style="text-align: center;">
-                <div class="staff-container">
-                    <canvas id="staffComp" width="700" height="150"></canvas>
-                </div>
-                <div id="char-preview" class="current-display">⠀</div>
-                <div class="braille-grid">
-                    <div class="dot" id="c-dot-1" data-label="1"></div><div class="dot" id="c-dot-4" data-label="4"></div>
-                    <div class="dot" id="c-dot-2" data-label="2"></div><div class="dot" id="c-dot-5" data-label="5"></div>
-                    <div class="dot" id="c-dot-3" data-label="3"></div><div class="dot" id="c-dot-6" data-label="6"></div>
-                </div>
-                <div id="battuta-text" style="letter-spacing: 5px; font-size: 1.5rem; color: var(--success);"></div>
+        <section id="comp" class="content-panel active">
+            <div class="staff-container">
+                <canvas id="cvsComp" width="800" height="160"></canvas>
             </div>
+            <div id="prev-char" class="char-preview">⠀</div>
+            <div class="braille-grid">
+                <div class="dot" id="c-dot-1" data-label="1"></div><div class="dot" id="c-dot-4" data-label="4"></div>
+                <div class="dot" id="c-dot-2" data-label="2"></div><div class="dot" id="c-dot-5" data-label="5"></div>
+                <div class="dot" id="c-dot-3" data-label="3"></div><div class="dot" id="c-dot-6" data-label="6"></div>
+            </div>
+            <div id="battuta-visual" style="text-align:center; font-size:2rem; color:var(--success); letter-spacing:10px;"></div>
         </section>
 
         <section id="quiz" class="content-panel">
-            <div style="text-align: center;">
-                <h2 id="quiz-msg">Caricamento quiz...</h2>
-                <div class="staff-container">
-                    <canvas id="staffQuiz" width="400" height="150"></canvas>
-                </div>
-                <div class="braille-grid">
-                    <div class="dot" id="q-dot-1" data-label="1"></div><div class="dot" id="q-dot-4" data-label="4"></div>
-                    <div class="dot" id="q-dot-2" data-label="2"></div><div class="dot" id="q-dot-5" data-label="5"></div>
-                    <div class="dot" id="q-dot-3" data-label="3"></div><div class="dot" id="q-dot-6" data-label="6"></div>
-                </div>
-                <button class="tab-btn active" onclick="verificaQuiz()">VERIFICA RISPOSTA</button>
+            <h2 id="q-text" style="text-align:center">Caricamento...</h2>
+            <div class="staff-container">
+                <canvas id="cvsQuiz" width="400" height="160" style="margin:auto; display:block"></canvas>
             </div>
+            <div class="braille-grid">
+                <div class="dot" id="q-dot-1" data-label="1"></div><div class="dot" id="q-dot-4" data-label="4"></div>
+                <div class="dot" id="q-dot-2" data-label="2"></div><div class="dot" id="q-dot-5" data-label="5"></div>
+                <div class="dot" id="q-dot-3" data-label="3"></div><div class="dot" id="q-dot-6" data-label="6"></div>
+            </div>
+            <div style="text-align:center"><button class="tab-btn active" onclick="checkQuiz()">VERIFICA</button></div>
         </section>
 
         <section id="docente" class="content-panel">
-            <h2 style="text-align:center">Tabella di Riferimento</h2>
-            <div id="ref-table-container"></div>
+            <h2 style="text-align:center">Legenda Musicografia</h2>
+            <div id="table-box"></div>
+        </section>
+
+        <section id="risorse" class="content-panel">
+            <h2 style="text-align:center">Materiale Didattico</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-top:20px;">
+                <div class="resource-card">
+                    <div style="font-size:3.5rem">📕</div>
+                    <h3>Manuale Completo</h3>
+                    <p>Approfondimento sulla teoria della musica Braille per docenti e studenti.</p>
+                    <a href="guida-musica-braille.pdf" target="_blank" class="btn-download">SCARICA PDF</a>
+                </div>
+                <div class="resource-card">
+                    <div style="font-size:3.5rem">🎹</div>
+                    <h3>Eserciziario</h3>
+                    <p>Spartiti di esempio tradotti per esercitarsi nella lettura tattile.</p>
+                    <button class="btn-download" style="background:#777" onclick="alert('In arrivo nelle prossime lezioni!')">PROSSIMAMENTE</button>
+                </div>
+            </div>
         </section>
     </div>
 
 <script>
-    // --- DATABASE NOTE CORRETTO ---
     const database = [
-        { n: "DO", p: [1,4,5], f: 261.63, pos: 5 },
-        { n: "RE", p: [1,5], f: 293.66, pos: 4 },
-        { n: "MI", p: [1,2,4], f: 329.63, pos: 3 },
-        { n: "FA", p: [1,2,4,5], f: 349.23, pos: 2 },
-        { n: "SOL", p: [1,2,5], f: 392.00, pos: 1 },
-        { n: "LA", p: [2,4], f: 440.00, pos: 0 },
+        { n: "DO", p: [1,4,5], f: 261.63, pos: 5 }, { n: "RE", p: [1,5], f: 293.66, pos: 4 },
+        { n: "MI", p: [1,2,4], f: 329.63, pos: 3 }, { n: "FA", p: [1,2,4,5], f: 349.23, pos: 2 },
+        { n: "SOL", p: [1,2,5], f: 392.00, pos: 1 }, { n: "LA", p: [2,4], f: 440.00, pos: 0 },
         { n: "SI", p: [2,4,5], f: 493.88, pos: -1 }
     ];
-    const durate = { "": {m:4, s:"𝅝"}, "3": {m:2, s:"𝅗𝅥"}, "6": {m:1, s:"𝅘𝅥"}, "3,6": {m:0.5, s:"𝅘𝅥𝅮"} };
+    const dMap = { "": {m:4, s:"𝅝", t:"Semibreve"}, "3": {m:2, s:"𝅗𝅥", t:"Minima"}, "6": {m:1, s:"𝅘𝅥", t:"Semiminima"}, "3,6": {m:0.5, s:"𝅘𝅥𝅮", t:"Croma"} };
     
-    let audioCtx, inseriti = new Set(), battuta = [], quizAttuale = null;
+    let audioCtx, currentKeys = new Set(), score = [], activeQuiz = null;
+
+    function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 
     function startApp() {
         document.getElementById('welcome-screen').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('welcome-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            drawStaff('staffComp', []);
-            popolaTabella();
-        }, 1000);
+            drawStaff('cvsComp', []);
+            buildTable();
+        }, 800);
     }
 
-    // --- AUDIO PIANO RIGENERATO ---
-    function playPiano(freq, ms) {
+    function playNote(freq, ms) {
         if(!freq || !audioCtx) return;
-        const g = audioCtx.createGain();
-        g.connect(audioCtx.destination);
-        const osc = audioCtx.createOscillator();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        const g = audioCtx.createGain(); g.connect(audioCtx.destination);
+        const o = audioCtx.createOscillator(); o.type = 'triangle';
+        o.frequency.setValueAtTime(freq, audioCtx.currentTime);
         g.gain.setValueAtTime(0.5, audioCtx.currentTime);
         g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + ms/1000);
-        osc.connect(g);
-        osc.start(); osc.stop(audioCtx.currentTime + ms/1000);
+        o.connect(g); o.start(); o.stop(audioCtx.currentTime + ms/1000);
     }
 
-    function getBraille(set) {
+    function getBChar(set) {
         let v = 0; const b = {1:1, 2:2, 3:4, 4:8, 5:16, 6:32};
         set.forEach(p => v += b[p]);
         return String.fromCharCode(0x2800 + v);
     }
 
     function drawStaff(id, notes) {
-        const c = document.getElementById(id); if(!c) return;
-        const ctx = c.getContext('2d');
-        ctx.clearRect(0,0,c.width,c.height);
-        ctx.strokeStyle = "#ccc";
+        const cvs = document.getElementById(id); if(!cvs) return;
+        const ctx = cvs.getContext('2d');
+        ctx.clearRect(0,0,cvs.width,cvs.height);
+        ctx.strokeStyle = "#ddd";
         for(let i=0; i<5; i++) {
-            let y = 50 + i*10;
-            ctx.beginPath(); ctx.moveTo(20, y); ctx.lineTo(c.width-20, y); ctx.stroke();
+            let y = 60 + i*10;
+            ctx.beginPath(); ctx.moveTo(30,y); ctx.lineTo(cvs.width-30,y); ctx.stroke();
         }
-        ctx.font = "40px serif"; ctx.fillStyle = "black";
-        ctx.fillText("𝄞", 30, 85);
-        let x = 100;
+        ctx.font = "45px serif"; ctx.fillStyle = "#333";
+        ctx.fillText("𝄞", 40, 95);
+        let x = 110;
         notes.forEach(n => {
-            let y = 85 + (n.pos * 5);
-            ctx.fillText(n.sym || "𝅘𝅥", x, y);
-            if(n.pos >= 5) { ctx.beginPath(); ctx.moveTo(x-5, 95); ctx.lineTo(x+25, 95); ctx.stroke(); }
-            x += 50;
+            let y = 95 + (n.pos * 5);
+            ctx.fillText(n.sym || "𝅘𝅥", x, y);
+            if(n.pos >= 5) { ctx.beginPath(); ctx.moveTo(x-5, 105); ctx.lineTo(x+25, 105); ctx.stroke(); }
+            x += 60;
         });
     }
 
-    const keysMap = {'f':1, 'd':2, 's':3, 'j':4, 'k':5, 'l':6};
+    const kMap = {'f':1, 'd':2, 's':3, 'j':4, 'k':5, 'l':6};
     window.addEventListener('keydown', (e) => {
         const k = e.key.toLowerCase();
         const p = document.querySelector('.content-panel.active').id;
-        if(keysMap[k]) {
-            inseriti.add(keysMap[k]);
-            const prefix = p === 'compositore' ? 'c-' : 'q-';
-            document.getElementById(prefix+'dot-'+keysMap[k]).classList.add('active');
-            if(p === 'compositore') document.getElementById('char-preview').innerText = getBraille(inseriti);
+        if(kMap[k]) {
+            currentKeys.add(kMap[k]);
+            const prefix = p === 'comp' ? 'c-' : 'q-';
+            document.getElementById(prefix+'dot-'+kMap[k])?.classList.add('active');
+            if(p === 'comp') document.getElementById('prev-char').innerText = getBChar(currentKeys);
         }
         if(e.code === 'Space') {
             e.preventDefault();
-            if(p === 'compositore') addNote();
-            resetCella();
+            if(p === 'comp') {
+                const s = Array.from(currentKeys).sort();
+                const base = s.filter(x => [1,2,4,5].includes(x)).join(',');
+                const mod = s.filter(x => [3,6].includes(x)).join(',');
+                const data = database.find(n => n.p.join(',') === base);
+                if(data && dMap[mod]) {
+                    const obj = { pos: data.pos, sym: dMap[mod].s, f: data.f, ms: dMap[mod].m * 500, char: getBChar(currentKeys) };
+                    score.push(obj);
+                    drawStaff('cvsComp', score);
+                    playNote(obj.f, obj.ms);
+                    document.getElementById('battuta-visual').innerText = score.map(x => x.char).join('');
+                }
+            }
+            resetDots();
         }
     });
 
-    function addNote() {
-        const s = Array.from(inseriti).sort();
-        const base = s.filter(x => [1,2,4,5].includes(x)).join(',');
-        const mod = s.filter(x => [3,6].includes(x)).join(',');
-        const nData = database.find(n => n.p.join(',') === base);
-        if(nData && durate[mod]) {
-            const obj = { pos: nData.pos, sym: durate[mod].s, f: nData.f, ms: durate[mod].m * 500, char: getBraille(inseriti) };
-            battuta.push(obj);
-            drawStaff('staffComp', battuta);
-            playPiano(obj.f, obj.ms);
-            document.getElementById('battuta-text').innerText = battuta.map(x => x.char).join('');
-        }
-    }
-
-    function generaQuiz() {
-        const n = database[Math.floor(Math.random()*database.length)];
-        const dK = Object.keys(durate)[Math.floor(Math.random()*4)];
-        quizAttuale = { n: n.n, p: [...n.p, ...(dK?dK.split(','):[])].sort().map(Number).join(','), full: n.n + " " + (dK===""?"Semibreve":dK==="3"?"Minima":dK==="6"?"Semiminima":"Croma") };
-        document.getElementById('quiz-msg').innerText = "Scrivi: " + quizAttuale.full;
-        drawStaff('staffQuiz', [{pos: n.pos, sym: durate[dK].s}]);
-        parla("Scrivi " + quizAttuale.full);
-    }
-
-    function verificaQuiz() {
-        if(Array.from(inseriti).sort().join(',') === quizAttuale.p) {
-            parla("Ottimo!"); setTimeout(generaQuiz, 1000);
-        } else { parla("Riprova"); }
-        resetCella();
+    function resetDots() {
+        currentKeys.clear();
+        document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+        const pr = document.getElementById('prev-char'); if(pr) pr.innerText = "⠀";
     }
 
     function openTab(id) {
         document.querySelectorAll('.content-panel, .tab-btn').forEach(x => x.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         event.currentTarget.classList.add('active');
-        if(id === 'quiz') generaQuiz();
+        if(id === 'quiz') startQuiz();
     }
 
-    function resetCella() {
-        inseriti.clear();
-        document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
-        if(document.getElementById('char-preview')) document.getElementById('char-preview').innerText = "⠀";
+    function startQuiz() {
+        const n = database[Math.floor(Math.random()*database.length)];
+        const dK = Object.keys(dMap)[Math.floor(Math.random()*4)];
+        activeQuiz = { p: [...n.p, ...(dK?dK.split(','):[])].sort().map(Number).join(','), label: n.n + " " + dMap[dK].t };
+        document.getElementById('q-text').innerText = "Scrivi: " + activeQuiz.label;
+        drawStaff('cvsQuiz', [{pos: n.pos, sym: dMap[dK].s}]);
     }
 
-    function parla(t) {
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'it-IT'; window.speechSynthesis.speak(m);
+    function checkQuiz() {
+        if(Array.from(currentKeys).sort().join(',') === activeQuiz.p) {
+            const m = new SpeechSynthesisUtterance("Ottimo!"); m.lang = 'it-IT'; window.speechSynthesis.speak(m);
+            setTimeout(startQuiz, 1000);
+        } else {
+            const m = new SpeechSynthesisUtterance("Riprova"); m.lang = 'it-IT'; window.speechSynthesis.speak(m);
+        }
+        resetDots();
     }
 
-    function popolaTabella() {
-        let h = `<table style="width:100%; border-collapse:collapse"><tr><th>Nota</th><th>Semibreve</th><th>Minima</th><th>Semiminima</th><th>Croma</th></tr>`;
+    function buildTable() {
+        let h = `<table style="width:100%; border-collapse:collapse; text-align:center">
+                 <tr style="background:#eee"><th>Nota</th><th>Semibreve</th><th>Minima</th><th>Semiminima</th><th>Croma</th></tr>`;
         database.forEach(n => {
-            h += `<tr><td>${n.n}</td><td style="font-size:2rem">${getBraille(new Set(n.p))}</td><td style="font-size:2rem">${getBraille(new Set([...n.p,3]))}</td><td style="font-size:2rem">${getBraille(new Set([...n.p,6]))}</td><td style="font-size:2rem">${getBraille(new Set([...n.p,3,6]))}</td></tr>`;
+            h += `<tr><td style="padding:10px; border:1px solid #ddd"><b>${n.n}</b></td>
+                  <td style="font-size:2rem; border:1px solid #ddd">${getBChar(new Set(n.p))}</td>
+                  <td style="font-size:2rem; border:1px solid #ddd">${getBChar(new Set([...n.p,3]))}</td>
+                  <td style="font-size:2rem; border:1px solid #ddd">${getBChar(new Set([...n.p,6]))}</td>
+                  <td style="font-size:2rem; border:1px solid #ddd">${getBChar(new Set([...n.p,3,6]))}</td></tr>`;
         });
-        document.getElementById('ref-table-container').innerHTML = h + "</table>";
+        document.getElementById('table-box').innerHTML = h + "</table>";
     }
 </script>
 </body>
